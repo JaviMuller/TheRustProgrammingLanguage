@@ -1,46 +1,51 @@
-use std::io::{self, Write};
+use std::io;
+use std::io::Write;
 
 fn main() {
-    println!("This program returns the nth fibonacci number.");
-    let n = read_nat_int();
-    let fib_n = fib(n);
-    println!("The {n}{} number of the fibonacci sequence is {fib_n}", position_postfix(n));
-}
-
-fn read_nat_int() -> i32 {
-    loop {
-        print!("Insert n: ");
+    println!("This program will output the nth fibonacci number.");
+    let n : u32 = loop {
+        print!("Choose n: ");
         io::stdout().flush().unwrap();
-
-        let mut aux = String::new();
-
+        
+        let mut n = String::new();
         io::stdin()
-            .read_line(&mut aux)
-            .expect("Couldn't read the input");
+            .read_line(&mut n)
+            .expect("Failed to read line");
 
-        match aux.trim().parse() {
-            Ok(0) => continue,
-            Ok(n) => break n,
-            Err(_) => continue,
-        }
-    }
-}
-
-fn fib(n: i32) -> i32 {
-    let mut i = 1;
-    let mut j = 0;
-
-    for _ in 1..n {
-        i += j;
-        j = i - j;        
+        match n.trim().parse() {
+            Ok(n) => if n > 0 { break n } else {},
+            Err(_) => ()
+        };
+        println!("n must be a positive integer")
     };
 
-    i
+    let res = fib(n);
+    let suffix = match n % 100 {
+        11 | 12 | 13 => "th",
+        v => match v % 10 {
+            1 => "st",
+            2 => "nd",
+            3 => "rd",
+            _ => "th"
+        }
+    };
+
+    println!("The {n}{suffix} fibonacci number is: {res}");
 }
 
-fn position_postfix(n: i32) -> &'static str {
-    if n % 10 == 1 { "st" }
-    else if n % 10 == 2 { "nd" }
-    else if n % 10 == 3 { "rd" }
-    else { "th" }
+fn fib(n : u32) -> u64 {
+    let mut a = 0;
+    let mut b = 1;
+    match n {
+        0 => 42,
+        1 => b,
+        v => {
+            for _ in 2..=v {
+                let sum = a + b;
+                a = b;
+                b = sum
+            };
+            b
+        }
+    }
 }

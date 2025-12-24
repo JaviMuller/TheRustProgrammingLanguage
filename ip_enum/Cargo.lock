@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "fibonacci"
+name = "ip_enum"
 version = "0.1.0"

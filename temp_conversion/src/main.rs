@@ -1,64 +1,76 @@
-use std::io::{self, Write};
-const FAHR_TO_CEL: u8 = 1;
-const CEL_TO_FAHR: u8 = 2;
-
+use std::io;
+use std::io::Write;
 
 fn main() {
-    let program_type : u8 = select_prog_type();
-    let orig: f64 = read_orig_tmp(program_type);
-    let res = if program_type == FAHR_TO_CEL { fahr_to_cel(orig) } 
-                   else { cel_to_fahr(orig) };
+    println!("Temperature conversion modes:");
+    println!("  1. ºF -> ºC");
+    println!("  2. ºC -> ºF\n");
 
-    println!("The converted temperature is: {:.1} °{}", res, if program_type == FAHR_TO_CEL { 'C' } else { 'F' });
-
-}
-
-fn select_prog_type() -> u8 {
     loop {
-        println!("Select mode:");
-        println!("{}) Fahrenheit to Celsius", FAHR_TO_CEL);
-        println!("{}) Celsius to Fahrenheit", CEL_TO_FAHR);
-        println!("");
-        print!("Mode: ");
+        print!("Choose the mode: ");
         io::stdout().flush().unwrap();
-
-        let mut p_type = String::new();
         
+        let mut number = String::new();
         io::stdin()
-            .read_line(&mut p_type)
-            .expect("There was an error reading the program type.");
+            .read_line(&mut number)
+            .expect("Failed to read line");
 
-        match p_type.trim().parse() {
-            Ok(FAHR_TO_CEL) => break FAHR_TO_CEL,
-            Ok(CEL_TO_FAHR) => break CEL_TO_FAHR,
-            Ok(_) => continue,
-            Err(_) => continue,
-        }
-    }
+        match number.trim().parse() {
+            Ok(1) => fahr_to_cel(),
+            Ok(2) => cel_to_fahr(),
+            Ok(_) | Err(_) => {
+                println!("Mode must be 1 or 2");
+                continue;
+            }
+        };
+        break
+    };
 }
 
-fn read_orig_tmp(program_type: u8) -> f64 {
-    loop {
-        print!("Original temperature (°{}): ", if program_type == FAHR_TO_CEL { 'F' } else { 'C' });
+fn fahr_to_cel() {
+    let temp_f : f64 = loop {
+        print!("Input the temperature in ºF: ");
         io::stdout().flush().unwrap();
         
         let mut temp = String::new();
-        
         io::stdin()
             .read_line(&mut temp)
-            .expect("There was an error reading the temperature.");
-        
+            .expect("Failed to read line");
+
         match temp.trim().parse() {
-            Ok(n) => break n,
-            Err(_) => continue,
+            Ok(v) => break v,
+            Err(_) => {
+                println!("Temperature must be a number!");
+                continue
+            }
         }
-    }
+    };
+    
+    let temp_c : f64 = (temp_f - 32.0) * 5.0/9.0;
+
+    println!("The corresponding temperature in ºC is: {temp_c:.2}");    
 }
 
-fn fahr_to_cel(orig: f64) -> f64 {
-    (orig - 32.0) / (9.0/5.0)
-}
+fn cel_to_fahr() {
+    let temp_c : f64 = loop {
+        print!("Input the temperature in ºC: ");
+        io::stdout().flush().unwrap();
+        
+        let mut temp = String::new();
+        io::stdin()
+            .read_line(&mut temp)
+            .expect("Failed to read line");
 
-fn cel_to_fahr(orig: f64) -> f64 {
-    (orig * (9.0/5.0)) + 32.0
+        match temp.trim().parse() {
+            Ok(v) => break v,
+            Err(_) => {
+                println!("Temperature must be a number!");
+                continue
+            }
+        }
+    };
+    
+    let temp_f : f64 = (temp_c * 9.0/5.0) + 32.0;
+
+    println!("The corresponding temperature in ºF is: {temp_f:.2}");    
 }
